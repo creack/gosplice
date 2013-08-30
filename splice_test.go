@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"os"
 	"syscall"
 	"testing"
 )
@@ -79,25 +80,6 @@ func listenSplice(listenPort, dstPort int, ready chan bool) error {
 		return err2
 	}
 	return nil
-}
-
-func spliceFctFail(rfd int, roff *int64, wfd int, woff *int64, len int, flags int) (n int64, err error) {
-	return -1, fmt.Errorf("Fail")
-}
-
-var spliceFctCount = 0
-
-func spliceFctFail2(rfd int, roff *int64, wfd int, woff *int64, len int, flags int) (n int64, err error) {
-	if spliceFctCount == 1 {
-		spliceFctCount = 0
-		return -1, fmt.Errorf("Fail")
-	}
-	spliceFctCount++
-	return syscall.Splice(rfd, roff, wfd, woff, len, flags)
-}
-
-func pipeFctFail(fds []int) error {
-	return fmt.Errorf("Fail")
 }
 
 func TestNewSplice(t *testing.T) {
@@ -186,8 +168,10 @@ func testCopy(listenPort, dstPort int) error {
 			if _, err := client.Read(buf); err != nil {
 				if err != io.EOF {
 					ret <- err
-					return
+				} else {
+					ret <- nil
 				}
+				return
 			}
 			if string(buf) != output {
 				ret <- fmt.Errorf("Unexpected output (%d). Expected [%s], received [%s]", i, output, string(buf))
@@ -215,7 +199,7 @@ func testCopy(listenPort, dstPort int) error {
 	return <-ret
 }
 
-func TestCopy(t *testing.T) {
+func TestCopyHelper(t *testing.T) {
 	if err := testCopy(54931, 54932); err != nil {
 		t.Fatal(err)
 	}
@@ -236,6 +220,33 @@ func TestCopy(t *testing.T) {
 	// 	t.Fatal("Excpected Copy to fail but didn't")
 	// }
 	// spliceFct = syscall.Splice
+
+}
+
+func TestCopy(t *testing.T) {
+	s, err := NewSplice()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Copy(nil, nil); err == nil {
+		t.Fatal("Excpected Copy to fail but didn't")
+	}
+
+	if _, err := s.Copy(nil, &fder{}); err == nil {
+		t.Fatal("Excpected Copy to fail but didn't")
+	}
+
+	if _, err := s.Copy(&fder{}, &fder{}); err == nil {
+		t.Fatal("Excpected Copy to fail but didn't")
+	}
+
+	if _, err := s.Copy(nil, &filer{}); err == nil {
+		t.Fatal("Excpected Copy to fail but didn't")
+	}
+
+	if _, err := s.Copy(&filer{}, &fder{}); err == nil {
+		t.Fatal("Excpected Copy to fail but didn't")
+	}
 }
 
 func BenchmarkCopy(b *testing.B) {
@@ -293,4 +304,43 @@ func BenchmarkCopy(b *testing.B) {
 		}
 		ret <- nil
 	}
+}
+
+// Helpers
+
+type fder struct {
+	io.Writer
+	io.Reader
+}
+
+func (fder) Fd() uintptr {
+	return 255
+}
+
+type filer struct {
+	io.Writer
+	io.Reader
+}
+
+func (filer) File() (*os.File, error) {
+	return nil, fmt.Errorf("Fail")
+}
+
+func spliceFctFail(rfd int, roff *int64, wfd int, woff *int64, len int, flags int) (n int64, err error) {
+	return -1, fmt.Errorf("Fail")
+}
+
+var spliceFctCount = 0
+
+func spliceFctFail2(rfd int, roff *int64, wfd int, woff *int64, len int, flags int) (n int64, err error) {
+	if spliceFctCount == 1 {
+		spliceFctCount = 0
+		return -1, fmt.Errorf("Fail")
+	}
+	spliceFctCount++
+	return syscall.Splice(rfd, roff, wfd, woff, len, flags)
+}
+
+func pipeFctFail(fds []int) error {
+	return fmt.Errorf("Fail")
 }
