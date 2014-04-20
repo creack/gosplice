@@ -1,17 +1,15 @@
 language: go
 go:
- - 1.1.2
- - 1.1.1
- - 1.1
+ - 1.2
+ - 1.2.1
  - tip
 
 install:
  - export PATH=$HOME/gopath/bin:$PATH
  - go get code.google.com/p/go.tools/cmd/cover
- - go get -v github.com/axw/gocov
- - go install github.com/axw/gocov/gocov
- - go get -v -d ./...
+ - go get github.com/mattn/goveralls
 
 script:
  - go test -v ./...
- - gocov test -deps -exclude-goroot | gocov report
+ - go test -covermode=count -coverprofile=profile.cov
+ - goveralls -coverprofile=profile.cov -service=travis-ci
