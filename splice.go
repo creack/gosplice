@@ -9,8 +9,9 @@ import (
 )
 
 const (
-	SPLICE_F_MORE = 0x01
-	SPLICE_F_MOVE = 0x03
+	SPLICE_F_MORE     = 0x01
+	SPLICE_F_NONBLOCK = 0x02
+	SPLICE_F_MOVE     = 0x03
 )
 
 var (
@@ -101,7 +102,18 @@ func Copy(dst io.Writer, src io.Reader) (n int64, err error) {
 	if err != nil {
 		return -1, err
 	}
+	defer s.Close()
 	return s.Copy(dst, src)
+}
+
+func (s *Splice) Close() error {
+	if s.pipe[0] != 0 {
+		os.NewFile(uintptr(s.pipe[0]), "").Close()
+	}
+	if s.pipe[1] != 0 {
+		os.NewFile(uintptr(s.pipe[1]), "").Close()
+	}
+	return nil
 }
 
 func NewSplice() (*Splice, error) {
