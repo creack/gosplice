@@ -6,8 +6,7 @@ go:
 install:
   - export PATH=$HOME/gopath/bin:$PATH
   - go get golang.org/x/tools/cmd/cover
-  - go get github.com/mattn/goveralls
 
 script:
   - go test -v -covermode=count -coverprofile=profile.cov .
-  - goveralls -coverprofile=profile.cov -service=travis-ci
+
