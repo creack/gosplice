@@ -1,16 +1,16 @@
-go-splice
+gosplice
 =========
 
-[![GoDoc](https://godoc.org/github.com/creack/go-splice?status.png)](https://godoc.org/github.com/creack/go-splice)
-[![Build Status](https://travis-ci.org/creack/go-splice.png)](https://travis-ci.org/creack/go-splice)
-[![Coverage Status](https://coveralls.io/repos/creack/go-splice/badge.png?branch=master)](https://coveralls.io/r/creack/go-splice?branch=master)
+[![GoDoc](https://godoc.org/github.com/creack/gosplice?status.png)](https://godoc.org/github.com/creack/gosplice)
+[![Build Status](https://travis-ci.org/creack/gosplice.png)](https://travis-ci.org/creack/gosplice)
+[![Coverage Status](https://coveralls.io/repos/creack/gosplice/badge.png?branch=master)](https://coveralls.io/r/creack/gosplice?branch=master)
 
-[![status](https://sourcegraph.com/api/repos/github.com/creack/go-splice/badges/status.png)](https://sourcegraph.com/github.com/creack/go-splice)
-[![docs examples](https://sourcegraph.com/api/repos/github.com/creack/go-splice/badges/docs-examples.png)](https://sourcegraph.com/github.com/creack/go-splice)
-[![xrefs](https://sourcegraph.com/api/repos/github.com/creack/go-splice/badges/xrefs.png)](https://sourcegraph.com/github.com/creack/go-splice)
-[![funcs](https://sourcegraph.com/api/repos/github.com/creack/go-splice/badges/funcs.png)](https://sourcegraph.com/github.com/creack/go-splice)
-[![top func](https://sourcegraph.com/api/repos/github.com/creack/go-splice/badges/top-func.png)](https://sourcegraph.com/github.com/creack/go-splice)
-[![library users](https://sourcegraph.com/api/repos/github.com/creack/go-splice/badges/library-users.png)](https://sourcegraph.com/github.com/creack/go-splice)
+[![status](https://sourcegraph.com/api/repos/github.com/creack/gosplice/badges/status.png)](https://sourcegraph.com/github.com/creack/gosplice)
+[![docs examples](https://sourcegraph.com/api/repos/github.com/creack/gosplice/badges/docs-examples.png)](https://sourcegraph.com/github.com/creack/gosplice)
+[![xrefs](https://sourcegraph.com/api/repos/github.com/creack/gosplice/badges/xrefs.png)](https://sourcegraph.com/github.com/creack/gosplice)
+[![funcs](https://sourcegraph.com/api/repos/github.com/creack/gosplice/badges/funcs.png)](https://sourcegraph.com/github.com/creack/gosplice)
+[![top func](https://sourcegraph.com/api/repos/github.com/creack/gosplice/badges/top-func.png)](https://sourcegraph.com/github.com/creack/gosplice)
+[![library users](https://sourcegraph.com/api/repos/github.com/creack/gosplice/badges/library-users.png)](https://sourcegraph.com/github.com/creack/gosplice)
 
 ===========
 

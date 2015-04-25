@@ -1,15 +1,13 @@
 language: go
+
 go:
- - 1.2
- - 1.2.1
- - tip
+  - 1.4.2
 
 install:
- - export PATH=$HOME/gopath/bin:$PATH
- - go get code.google.com/p/go.tools/cmd/cover
- - go get github.com/mattn/goveralls
+  - export PATH=$HOME/gopath/bin:$PATH
+  - go get golang.org/x/tools/cmd/cover
+  - go get github.com/mattn/goveralls
 
 script:
- - go test -v ./...
- - go test -covermode=count -coverprofile=profile.cov
- - goveralls -coverprofile=profile.cov -service=travis-ci
+  - go test -v -covermode=count -coverprofile=profile.cov .
+  - goveralls -coverprofile=profile.cov -service=travis-ci

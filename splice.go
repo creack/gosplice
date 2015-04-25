@@ -1,4 +1,6 @@
-package splice
+// +build linux
+
+package gosplice
 
 import (
 	"errors"
@@ -8,21 +10,22 @@ import (
 	"syscall"
 )
 
+// Splice options consts.
 const (
-	SPLICE_F_MORE     = 0x01
-	SPLICE_F_NONBLOCK = 0x02
-	SPLICE_F_MOVE     = 0x03
+	SpliceFMore     = 0x01
+	SpliceFNonblock = 0x02
+	SpliceFMove     = 0x03
 )
 
-var (
-	ErrNoFD error = errors.New("The requested stream does not have Fd() method")
-)
+// Common error
+var ErrNoFD = errors.New("The requested stream does not have Fd() method")
 
 var (
 	pipeFct   = syscall.Pipe
 	spliceFct = syscall.Splice
 )
 
+// Splice represent the needed data for a splice.
 type Splice struct {
 	sync.Mutex
 	pipe       []int
@@ -30,22 +33,27 @@ type Splice struct {
 	flags      int
 }
 
+// Filer is an interface to get the File out of an object.
 type Filer interface {
 	File() (*os.File, error)
 }
 
+// FDer is an interface to get the FD out of an object.
 type FDer interface {
 	Fd() uintptr
 }
 
+// SetBufferSize sets the buffer size.
 func (s *Splice) SetBufferSize(size int) {
 	s.bufferSize = size
 }
 
+// SetFlags sets the Splice flags.
 func (s *Splice) SetFlags(flags int) {
 	s.flags = flags
 }
 
+// Copy effectively perform the splice operation.
 func (s *Splice) Copy(dst io.Writer, src io.Reader) (n int64, err error) {
 	s.Lock()
 	defer s.Unlock()
@@ -57,31 +65,31 @@ func (s *Splice) Copy(dst io.Writer, src io.Reader) (n int64, err error) {
 	)
 
 	if f, ok := src.(FDer); !ok {
-		if f, ok := src.(Filer); !ok {
+		filer, ok := src.(Filer)
+		if !ok {
 			return -1, ErrNoFD
-		} else {
-			if f, err := f.File(); err != nil {
-				return -1, err
-			} else {
-				srcFd = int(f.Fd())
-			}
 		}
+		f, err := filer.File()
+		if err != nil {
+			return -1, err
+		}
+		srcFd = int(f.Fd())
 	} else {
 		srcFd = int(f.Fd())
 	}
 
-	if t, ok := dst.(FDer); !ok {
-		if t, ok := dst.(Filer); !ok {
-			return -1, ErrNoFD
-		} else {
-			if t, err := t.File(); err != nil {
-				return -1, err
-			} else {
-				dstFd = int(t.Fd())
-			}
-		}
+	if fder, ok := dst.(FDer); ok {
+		dstFd = int(fder.Fd())
 	} else {
-		dstFd = int(t.Fd())
+		filer, ok := dst.(Filer)
+		if !ok {
+			return -1, ErrNoFD
+		}
+		f, err := filer.File()
+		if err != nil {
+			return -1, err
+		}
+		dstFd = int(f.Fd())
 	}
 
 	for {
@@ -101,6 +109,7 @@ func (s *Splice) Copy(dst io.Writer, src io.Reader) (n int64, err error) {
 	return written, nil
 }
 
+// Copy is a helper that instantiates a new Splice and perform the Copy.
 func Copy(dst io.Writer, src io.Reader) (n int64, err error) {
 	s, err := NewSplice()
 	if err != nil {
@@ -110,6 +119,7 @@ func Copy(dst io.Writer, src io.Reader) (n int64, err error) {
 	return s.Copy(dst, src)
 }
 
+// Close terminates the splice.
 func (s *Splice) Close() error {
 	if s.pipe[0] != 0 {
 		os.NewFile(uintptr(s.pipe[0]), "").Close()
@@ -120,6 +130,7 @@ func (s *Splice) Close() error {
 	return nil
 }
 
+// NewSplice instantiates a new Splice object.
 func NewSplice() (*Splice, error) {
 	pipe := []int{0, 0}
 	if err := pipeFct(pipe); err != nil {
@@ -128,6 +139,6 @@ func NewSplice() (*Splice, error) {
 	return &Splice{
 		pipe:       pipe,
 		bufferSize: 32 * 1024,
-		flags:      SPLICE_F_MOVE | SPLICE_F_MORE,
+		flags:      SpliceFMove | SpliceFMore,
 	}, nil
 }

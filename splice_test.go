@@ -1,4 +1,6 @@
-package splice
+// +build linux
+
+package gosplice
 
 import (
 	"fmt"
@@ -103,13 +105,13 @@ func TestSetFlags(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	s.SetFlags(SPLICE_F_MORE)
-	if s.flags != SPLICE_F_MORE {
-		t.Fatalf("SetFlags failed, expected flag: %d, found: %d", SPLICE_F_MORE, s.flags)
+	s.SetFlags(SpliceFMore)
+	if s.flags != SpliceFMore {
+		t.Fatalf("SetFlags failed, expected flag: %d, found: %d", SpliceFMore, s.flags)
 	}
-	s.SetFlags(SPLICE_F_MORE | SPLICE_F_MOVE)
-	if s.flags != SPLICE_F_MORE|SPLICE_F_MOVE {
-		t.Fatalf("SetFlags failed, expected flag: %d, found: %d", SPLICE_F_MORE|SPLICE_F_MOVE, s.flags)
+	s.SetFlags(SpliceFMore | SpliceFMove)
+	if s.flags != SpliceFMore|SpliceFMove {
+		t.Fatalf("SetFlags failed, expected flag: %d, found: %d", SpliceFMore|SpliceFMove, s.flags)
 	}
 	s.SetFlags(0)
 	if s.flags != 0 {
