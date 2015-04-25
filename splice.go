@@ -94,9 +94,9 @@ func (s *Splice) Copy(dst io.Writer, src io.Reader) (n int64, err error) {
 		}
 		w, err = spliceFct(s.pipe[0], nil, dstFd, nil, int(w), s.flags)
 		if err != nil {
-			return written + w, err
+			return written + int64(w), err
 		}
-		written += w
+		written += int64(w)
 	}
 	return written, nil
 }
